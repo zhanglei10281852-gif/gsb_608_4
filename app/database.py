@@ -58,6 +58,30 @@ def init_db():
             is_pinned INTEGER DEFAULT 0,
             created_at TEXT DEFAULT (datetime('now', 'localtime'))
         );
+
+        CREATE TABLE IF NOT EXISTS affair_logs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            affair_id INTEGER NOT NULL,
+            from_status TEXT,
+            to_status TEXT NOT NULL,
+            handler TEXT,
+            remark TEXT,
+            created_at TEXT DEFAULT (datetime('now', 'localtime')),
+            FOREIGN KEY (affair_id) REFERENCES affairs(id) ON DELETE CASCADE
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_affair_logs_affair_id
+            ON affair_logs(affair_id);
     """)
+
+    # 为既有事务补齐"创建"流转记录，避免历史数据时间线缺首条
+    cursor.execute(
+        """INSERT INTO affair_logs (affair_id, from_status, to_status, handler, remark, created_at)
+           SELECT a.id, NULL, '待受理', NULL, '历史数据补录-创建', a.created_at
+           FROM affairs a
+           WHERE NOT EXISTS (
+               SELECT 1 FROM affair_logs l WHERE l.affair_id = a.id
+           )"""
+    )
 
     conn.commit()
