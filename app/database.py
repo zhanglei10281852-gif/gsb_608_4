@@ -58,6 +58,19 @@ def init_db():
             is_pinned INTEGER DEFAULT 0,
             created_at TEXT DEFAULT (datetime('now', 'localtime'))
         );
+
+        CREATE TABLE IF NOT EXISTS affair_history (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            affair_id INTEGER NOT NULL,
+            from_status TEXT,
+            to_status TEXT NOT NULL,
+            handler TEXT,
+            remark TEXT,
+            created_at TEXT DEFAULT (datetime('now', 'localtime')),
+            FOREIGN KEY (affair_id) REFERENCES affairs(id) ON DELETE CASCADE
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_affair_history_affair_id ON affair_history(affair_id);
     """)
 
     conn.commit()
