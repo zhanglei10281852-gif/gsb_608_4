@@ -49,6 +49,18 @@ def init_db():
             FOREIGN KEY (applicant_id) REFERENCES residents(id)
         );
 
+        CREATE TABLE IF NOT EXISTS affair_logs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            affair_id INTEGER NOT NULL,
+            from_status TEXT,
+            to_status TEXT NOT NULL,
+            handler TEXT,
+            result TEXT,
+            remark TEXT,
+            created_at TEXT DEFAULT (datetime('now', 'localtime')),
+            FOREIGN KEY (affair_id) REFERENCES affairs(id)
+        );
+
         CREATE TABLE IF NOT EXISTS announcements (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT NOT NULL,
